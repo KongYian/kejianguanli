@@ -1,7 +1,3 @@
-*
 !.gitignore
 !.htaccess
 !.htaccess_apache2.4
-!admin_simpleboot3
-!simpleboot3
-!default
