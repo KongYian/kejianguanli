@@ -1,0 +1,8 @@
+.buildpath
+.DS_Store
+.project
+.settings
+.idea
+composer.lock
+/data/runtime
+/public/upload/
