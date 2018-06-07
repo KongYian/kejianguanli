@@ -1,0 +1,74 @@
+<include file="public@header" title="课件列表"/>
+<body>
+<div id="app">
+    <div data-am-widget="list_news" class="am-list-news am-list-news-default" >
+        <!--列表标题-->
+        <div class="am-list-news-hd am-cf">
+            <!--带更多链接-->
+            <a href="###" class="">
+                <h2>课件列表</h2>
+                <span class="am-list-news-more am-fr"></span>
+            </a>
+        </div>
+
+        <div class="am-list-news-bd">
+            <ul class="am-list">
+                <!--缩略图在标题左边-->
+                <li class="am-g am-list-item-desced am-list-item-thumbed am-list-item-thumb-left" v-for="course in courseList">
+                    <div class="am-u-sm-4 am-list-thumb">
+                        <a href="javascript:void (0)" class="">
+                            <img v-bind:src="'/upload/'+course.thumbnail"/>
+                        </a>
+                    </div>
+                    <div class=" am-u-sm-8 am-list-main">
+                        <a @click="courseInfo(course.id,course.course_type_id)"><h3 class="am-list-item-hd" v-text="course.title"></h3></a>
+                        <div class="am-list-item-text" v-text="'教师:    '+course.teacher"></div>
+                        <div class="am-list-item-text" v-text="course.description"></div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+</body>
+<include file="public@footer"/>
+<script>
+    var vm = new Vue({
+        el:'#app',
+        data:{
+            courseList:[]
+        },
+        beforeCreate:function () {
+            init()
+        },
+        methods:{
+            courseInfo:function(courseId,courseType){
+                console.log(courseId)
+                console.log(courseType)
+                var user_id = 1
+                if(courseType == 1){
+                    jumpTmpl(courseId,user_id)
+                }
+            }
+        }
+    })
+    function init() {
+        $.ajax({
+            url: '/api/course/course/courseList?currentPage=1',
+            type:'post',
+            dataType:'json',
+            success:function (res) {
+                console.log(res.data)
+                vm.courseList = res.data
+            },
+            error:function () {
+
+            }
+        })
+    }
+    function jumpTmpl(courseId,userId) {
+        window.location.href = '/test/index/detailVideo?course_id='+courseId+'&user_id='+userId
+    }
+</script>

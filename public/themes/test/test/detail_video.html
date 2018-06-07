@@ -1,0 +1,113 @@
+<include file="public@header" title="课件详情"/>
+<link href="//vjs.zencdn.net/7.0/video-js.min.css" rel="stylesheet">
+<script src="//vjs.zencdn.net/7.0/video.min.js"></script>
+<style>
+    .my-video-dimensions{
+        width: 100%;
+    }
+</style>
+<body>
+<div id="app">
+    <div class="am am-figure am-figure-default">
+        <video id="my-video" class="video-js" controls preload="auto" width="100%" height="300px">
+            <!--<video id="my-video" class="video-js" controls preload="auto" width="100%" height="300px"-->
+                   <!--poster="" data-setup="{}">-->
+                <!--<source v-bind:src="'/upload/'+video_src" type="video/mp4" />-->
+            <!--</video>-->
+        </video>
+        <!--<img v-bind:src="'/upload/'+baseInfo.thumbnail" alt=""/>-->
+        <figcaption class="am-figure-capition-btm">
+            浏览数:{{ baseInfo.hits }} | 点赞数:{{ baseInfo.like }}
+        </figcaption>
+        <hr data-am-widget="divider" style="" class="am-divider am-divider-default" />
+        <figcaption class="am-figure-capition-btm">
+            <div>
+                <span><a @click="likePost">点赞</a></span>
+            </div>
+            <div>
+                <span><a @click="remarkPost">写评论</a></span>
+            </div>
+        </figcaption>
+
+        <figcaption class="am-figure-capition-btm">
+            <div data-am-widget="list_news" class="am-list-news am-list-news-default" >
+                <div class="am-list-news-bd">
+                    <ul class="am-list">
+                        <li class="am-g am-list-item-dated" v-for="item in comment_info">
+                            <img class="am-circle" width="40" height="40" v-bind:src="item.avatar" style="float: left"/>
+                            <a class="am-list-item-hd " v-text="item.content" href="javascript:void (0)" style="padding-right: 200px"></a>
+                            <span class="am-list-date" v-text="item.create_time"></span>
+                        </li>
+
+                    </ul>
+                </div>
+
+            </div>
+        </figcaption>
+    </div>
+
+</div>
+
+</body>
+<include file="public@footer"/>
+<script>
+    $('#my-video').bind('contextmenu',function() { return false; });
+    $('.video-js').bind('contextmenu',function() { return false; });
+</script>
+<script>
+    var vm = new Vue({
+        el:'#app',
+        data:{
+            video_src: [],
+            courseList:[],
+            baseInfo:'',
+            comment_info:'',
+            like_info:'',
+            other_info:'',
+            course_id:'{$course_id}',
+            user_id:'{$user_id}',
+        },
+        beforeCreate:function () {
+            var course_id = '{$course_id}';
+            var user_id = '{$user_id}';
+            init(course_id,user_id);
+        },
+        methods:{
+            remarkPost:function () {
+                alert('用户ID为'+vm.user_id+'课件ID为'+vm.course_id+'开始提交评论')
+            },
+            likePost:function () {
+                alert('用户ID为'+vm.user_id+'课件ID为'+vm.course_id+'开始点赞')
+            }
+        }
+    })
+    function init(course_id,user_id) {
+        $.ajax({
+            url: '/api/course/course/courseInfo?course_id='+course_id+'&user_id='+user_id,
+            type:'post',
+            dataType:'json',
+            success:function (res) {
+                console.log(res.data)
+                var data = res.data
+                vm.baseInfo = data.base_info;
+                vm.video_src = JSON.parse(data.base_info.attachment).video_url
+                console.log(vm.video_src)
+                var videoObj =videojs('my-video',{
+                    
+                },function () {
+                    
+                })
+                videoObj.src('/upload/'+vm.video_src);
+                vm.comment_info = data.comment_info;
+                vm.like_info = data.like_info;
+                vm.other_info = data.other_info;
+            },
+            error:function () {
+
+            }
+        })
+    }
+    function jumpTmpl(type) {
+
+    }
+</script>
