@@ -1,0 +1,88 @@
+<include file="public@header"/>
+</head>
+<body>
+<div class="wrap js-check-wrap">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="{:url('AdminCourseComment/commentList',['id'=>$course_id])}">评论列表</a></li>
+        <li><a href="{:url('AdminCourse/courseList')}">课件列表</a></li>
+    </ul>
+    <form class="well form-inline margin-top-20" method="post" action="{:url('AdminCourseComment/commentList')}">&nbsp;&nbsp;
+        时间:
+        <input type="text" class="form-control js-bootstrap-datetime" name="start_time"
+               value="{$start_time|default=''}"
+               style="width: 140px;" autocomplete="off">-
+        <input type="text" class="form-control js-bootstrap-datetime" name="end_time"
+               value="{$end_time|default=''}"
+               style="width: 140px;" autocomplete="off"> &nbsp; &nbsp;
+        关键字:
+        <input type="text" class="form-control" name="keyword" style="width: 200px;"
+               value="{$keyword|default=''}" placeholder="请输入关键字...">
+        <input type="submit" class="btn btn-primary" value="搜索"/>
+        <a class="btn btn-danger" href="{:url('AdminCourseComment/courseList')}">清空</a>
+    </form>
+    <form class="js-ajax-form" action="" method="post">
+        <div class="table-actions">
+            <button class="btn btn-danger btn-sm js-ajax-submit" type="submit"
+                    data-action="{:url('AdminCourseComment/delete')}" data-subcheck="true" data-msg="您确定删除吗？">
+                {:lang('DELETE')}
+            </button>
+        </div>
+        <table class="table table-hover table-bordered table-list">
+            <thead>
+            <tr>
+                <th width="15">
+                    <label>
+                        <input type="checkbox" class="js-check-all" data-direction="x" data-checklist="js-check-x">
+                    </label>
+                </th>
+                <th width="50">ID</th>
+                <th width="80">课件标题</th>
+                <th width="80">用户姓名</th>
+                <th width="50">头像</th>
+                <th width="40">评论内容</th>
+                <th width="120">评论时间</th>
+                <th width="90">操作</th>
+            </tr>
+            </thead>
+            <foreach name="comments" item="vo">
+                <tr>
+                    <td>
+                        <input type="checkbox" class="js-check" data-yid="js-check-y" data-xid="js-check-x" name="ids[]"
+                               value="{$vo.id}" title="ID:{$vo.id}">
+                    </td>
+                    <td><b>{$vo.id}</b></td>
+                    <td>{$vo.title}</td>
+                    <td>{$vo.username}</td>
+                    <td>{$vo.avatar|default=''}</td>
+                    <td>{$vo.content|default=''}</td>
+                    <td>
+                        <notempty name="vo.create_time">
+                            {:date('Y-m-d H:i',$vo['create_time'])}
+                        </notempty>
+                    </td>
+                    <td>
+                        <!--<button class="btn btn-danger btn-sm js-ajax-submit" type="submit"-->
+                                <!--data-action="{:url('AdminCourseComment/delete')}" data-subcheck="true" data-msg="您确定删除吗？">-->
+                            <!--{:lang('DELETE')}-->
+                        <!--</button>-->
+                        <a href="{:url('AdminCourseComment/delete',array('id'=>$vo['id']))}" class="js-ajax-delete">删除</a>
+                    </td>
+                </tr>
+            </foreach>
+        </table>
+        <ul class="pagination">{$comment|default=''}</ul>
+    </form>
+</div>
+<script src="__STATIC__/js/admin.js"></script>
+<script>
+
+    function reloadPage(win) {
+        win.location.reload();
+    }
+
+    $(function () {
+
+    });
+</script>
+</body>
+</html>

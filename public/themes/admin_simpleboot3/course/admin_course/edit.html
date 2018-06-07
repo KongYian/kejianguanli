@@ -1,0 +1,188 @@
+<include file="public@header"/>
+<style type="text/css">
+    .pic-list li {
+        margin-bottom: 5px;
+    }
+</style>
+</head>
+<body>
+<div class="wrap js-check-wrap">
+    <ul class="nav nav-tabs">
+        <li><a href="{:url('AdminCourse/courseList')}">课件列表</a></li>
+        <li><a href="{:url('AdminCourse/add')}">添加课件</a></li>
+        <li class="active"><a href="{:url('AdminCourse/edit',array('id'=>$info.id))}">编辑课件</a></li>
+    </ul>
+    <form action="{:url('AdminCourse/editPost',array('id'=>$info.id))}" method="post" class="form-horizontal js-ajax-form margin-top-20">
+        <div class="row">
+            <div class="col-md-9">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>标题<span class="form-required">*</span></th>
+                        <td>
+                            <input class="form-control" type="text" name="title"
+                                   id="title" required value="{$info.title}" placeholder="请输入标题"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>课件摘要<span class="form-required">*</span></th>
+                        <td>
+                            <textarea class="form-control" name="description" style="height: 50px;"
+                                      placeholder="请填写课件摘要">{$info.description}</textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>教师<span class="form-required">*</span></th>
+                        <td>
+                            <input class="form-control" type="text" name="teacher"
+                                   id="teacher" required value="{$info.teacher}" placeholder="请输入教师姓名"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>课件封面<span class="form-required">*</span></th>
+                        <td>
+                            <div style="text-align: center;">
+                                <input type="hidden" name="thumbnail" id="thumbnail" value="{$info.thumbnail|default=''}">
+                                <a href="javascript:uploadOneImage('图片上传','#thumbnail');">
+
+                                    <if condition="empty($info.thumbnail)">
+                                        <img src="__TMPL__/public/assets/images/default-thumbnail.png"
+                                             id="thumbnail-preview"
+                                             width="135" style="cursor: pointer"/>
+                                        <else/>
+                                        <img src="{:cmf_get_image_preview_url($info.thumbnail)}"
+                                             id="thumbnail-preview"
+                                             width="135" style="cursor: pointer"/>
+                                    </if>
+                                </a>
+                                <input type="button" class="btn btn-sm btn-cancel-thumbnail" value="取消图片">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="100">课件类型<span class="form-required">*</span></th>
+                        <td>
+                            <select name="type" id="type" class="form-control" style="width: 300px">
+                                {$typeTree}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>附件<span class="form-required">*</span></th>
+                        <php>
+                            $src = json_decode($info['attachment'],true);
+                        </php>
+                        <switch $info.course_type_id>
+                            <case 1>
+                                <php>
+                                    $video_url = cmf_get_image_preview_url($src['video_url']);
+                                    $video_name = empty($src['video_name']) == true ? '' : $src['video_name'];
+                                </php>
+                                <td class="type-video">
+                                    <input id="video" type="hidden" name="video_url" value="{$video_url}">
+                                    <input id="video-name" type="text" name="video_name" title="视频名称" value="{$video_name}">
+                                    <!--<img id="photo-1-preview">-->
+                                    <a href="javascript:uploadOne('视频上传','#video','video');">上传</a>
+                                    <a href="javascript:(function(){$('#video').remove();$('#video-name').val('')})();">移除</a>
+                                </td>
+                            </case>
+                            <case 2>
+                                <php>
+                                    $ppt_photo_name = empty($src['ppt_photo_name']) == true ? '' : $src['ppt_photo_name'];
+                                    $ppt_photo_url = cmf_get_image_preview_url($src['ppt_photo_url']);
+                                    $ppt_audio_url = cmf_get_image_preview_url($src['ppt_audio_url']);
+                                    $ppt_audio_name = empty($src['ppt_audio_name']) == true ? '' : $src['ppt_audio_name'];
+                                </php>
+                                <td class="type-ppt">
+                                    <span>图片上传</span>
+                                    <input id="ppt-photo" type="hidden" name="ppt_photo_url" value="{$ppt_photo_url}">
+                                    <input id="ppt-photo-name" type="text" name="ppt_photo_name" title="图片名称" value="{$ppt_photo_name}">
+                                    <!--<img id="photo-1-preview">-->
+                                    <a href="javascript:uploadOneImage('图片上传','#ppt-photo');">上传</a>
+                                    <a href="javascript:(function(){$('#ppt-photo').remove();$('#ppt-photo-name').val('')})();">移除</a>
+                                    <span style="padding-left: 5px">音频上传</span>
+                                    <input id="ppt-audio" type="hidden" name="ppt_audio_url" value="{$ppt_audio_url}">
+                                    <input id="ppt-audio-name" type="text" name="ppt_audio_name" title="音频名称" value="{$ppt_audio_name}">
+                                    <!--<img id="photo-1-preview">-->
+                                    <a href="javascript:uploadOne('音频名称','#ppt-audio','audio');">上传</a>
+                                    <a href="javascript:(function(){$('#ppt-audio').remove();$('#ppt-audio-name').val('')})();">移除</a>
+                                </td>
+
+                            </case>
+
+                        </switch>
+                    </tr>
+                    <tr>
+                        <th>发布</th>
+                        <td>
+                            <php>$checked_status = $info['status'] == 1 ? 'checked' : ''</php>
+                            <div class="checkbox">
+                                <label>
+                                    <input  type="checkbox" id="post-status-checkbox" name="status" value="1" {$checked_status}>
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>开启评论</th>
+                        <td>
+                            <php>$checked_comment = $info['allow_comment'] == 1 ? 'checked' : ''</php>
+                            <div class="checkbox">
+                                <label>
+                                    <input  type="checkbox" id="allow_comment-checkbox" name="allow_comment" value="1" {$checked_comment}>
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-primary js-ajax-submit">修改</button>
+                        <a class="btn btn-default" href="{:url('AdminCourse/courseList')}">{:lang('BACK')}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" src="__STATIC__/js/admin.js"></script>
+<script type="text/javascript">
+    //编辑器路径定义
+    var editorURL = GV.WEB_ROOT;
+</script>
+<script type="text/javascript" src="__STATIC__/js/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" src="__STATIC__/js/ueditor/ueditor.all.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+
+        editorcontent = new baidu.editor.ui.Editor();
+        editorcontent.render('content');
+        try {
+            editorcontent.sync();
+        } catch (err) {
+        }
+
+        $('.btn-cancel-thumbnail').click(function () {
+            $('#thumbnail-preview').attr('src', '__TMPL__/public/assets/images/default-thumbnail.png');
+            $('#thumbnail').val('');
+        });
+
+        $('#type').on('change',function () {
+            var type = $('#type').val()
+            if(type == 1){
+                $('.type-video').show();
+                $('.type-ppt').hide();
+            }else if (type ==2){
+                $('.type-video').hide();
+                $('.type-ppt').show();
+            }else{
+                layer.msg('课件类型错误');return false;
+            }
+            console.log(type,'课件类型')
+        })
+
+    });
+
+
+</script>
+</body>
+</html>
