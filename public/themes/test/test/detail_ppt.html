@@ -1,0 +1,186 @@
+<include file="public@header" title="课件详情"/>
+<link href="__STATIC__/test/video-js.min.css" rel="stylesheet">
+<script src="__STATIC__/test/video.min.js"></script>
+<style>
+    .my-video-dimensions{
+        width: 100%;
+    }
+    #play-audio{
+        position: fixed;
+        right:1rem;
+        top:1rem;
+        z-index: 10000;
+        background-size:cover;
+    }
+    .play{
+        animation:rotating 1.2s linear infinite
+    }
+
+    @keyframes rotating{
+        from{transform:rotate(0)}
+        to{transform:rotate(360deg)}
+    }
+    @-webkit-keyframes rotating{
+        from{transform:rotate(0)}
+        to{transform:rotate(360deg)}
+    }
+    @-moz-keyframes rotating{
+        from{transform:rotate(0)}
+        to{transform:rotate(360deg)}
+    }
+
+</style>
+<body>
+<div id="app">
+    <img src="__STATIC__/test/audio.png" alt="" id="play-audio">
+    <div class="am am-figure am-figure-default">
+        <img v-bind:src="'/upload/'+ppt_photo_url" alt=""/>
+        <figcaption class="am-figure-capition-btm">
+            浏览数:{{ baseInfo.hits }} | 点赞数:{{ baseInfo.like }}
+        </figcaption>
+        <hr data-am-widget="divider" style="" class="am-divider am-divider-default" />
+        <figcaption class="am-figure-capition-btm">
+            <div>
+                <span><a @click="likePost">点赞</a></span>
+            </div>
+            <div>
+                <span><a @click="remarkPost">写评论</a></span>
+            </div>
+        </figcaption>
+
+        <figcaption class="am-figure-capition-btm">
+            <div data-am-widget="list_news" class="am-list-news am-list-news-default" >
+                <div class="am-list-news-bd">
+                    <ul class="am-list">
+                        <li class="am-g am-list-item-dated" v-for="item in comment_info">
+                            <img class="am-circle" width="40" height="40" v-bind:src="item.avatar" style="float: left"/>
+                            <a class="am-list-item-hd " v-text="item.content" href="javascript:void (0)" style="padding-right: 200px"></a>
+                            <span class="am-list-date" v-text="item.create_time"></span>
+                        </li>
+
+                    </ul>
+                </div>
+
+            </div>
+        </figcaption>
+        <!--<figcaption class="am-figure-capition-btm">-->
+            <!--<img src="__STATIC__/test/play.png" alt="">-->
+        <!--</figcaption>-->
+    </div>
+    <div class="am-modal am-modal-prompt" tabindex="-1" id="my-prompt">
+        <div class="am-modal-dialog">
+            <div class="am-modal-hd"></div>
+            <div class="am-modal-bd">
+                来来来，吐槽点啥吧
+                <input type="text" class="am-modal-prompt-input">
+            </div>
+            <div class="am-modal-footer">
+                <span class="am-modal-btn" data-am-modal-cancel>取消</span>
+                <span class="am-modal-btn" data-am-modal-confirm>提交</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<include file="public@footer"/>
+<script>
+    $('#my-video').bind('contextmenu',function() { return false; });
+    $('.video-js').bind('contextmenu',function() { return false; });
+</script>
+<script>
+    var vm = new Vue({
+        el:'#app',
+        data:{
+            ppt_photo_url: '',
+            ppt_audio_url: '',
+            courseList:[],
+            baseInfo:'',
+            comment_info:'',
+            like_info:'',
+            other_info:'',
+            course_id:'{$course_id}',
+            user_id:'{$user_id}',
+            audio:''
+        },
+        beforeCreate:function () {
+            var course_id = '{$course_id}';
+            var user_id = '{$user_id}';
+            init(course_id,user_id);
+        },
+        methods:{
+            remarkPost:function () {
+                $('#my-prompt').modal({
+                    relatedTarget: this,
+                    onConfirm: function(e) {
+                        alert('你输入的是：' + e.data || '')
+                    },
+                    onCancel: function(e) {
+                        alert('不想说!');
+                    }
+                })
+//                alert('用户ID为'+vm.user_id+'课件ID为'+vm.course_id+'开始提交评论')
+            },
+            likePost:function () {
+                alert('用户ID为'+vm.user_id+'课件ID为'+vm.course_id+'开始点赞')
+            }
+        }
+    })
+    function init(course_id,user_id) {
+        $.ajax({
+            url: '/api/course/course/courseInfo?course_id='+course_id+'&user_id='+user_id,
+            type:'post',
+            dataType:'json',
+            success:function (res) {
+                console.log(res.data)
+                var data = res.data
+                vm.baseInfo = data.base_info;
+                vm.ppt_photo_url = JSON.parse(data.base_info.attachment).ppt_photo_url
+                vm.ppt_audio_url = JSON.parse(data.base_info.attachment).ppt_audio_url
+                vm.comment_info = data.comment_info;
+                vm.like_info = data.like_info;
+                vm.other_info = data.other_info;
+                vm.audio = document.createElement("audio");
+                var audio = vm.audio;
+                audio.src = "/upload/"+vm.ppt_audio_url;
+                audio.loop = true
+                audio.addEventListener("canplaythrough",
+                    function() {
+                        console.log('音频文件已经准备好，随时待命');
+                    },
+                    false);
+            },
+            error:function () {
+
+            }
+        })
+    }
+
+    function aPlay() {
+        vm.audio.play();
+    }
+    function aPause() {
+        vm.audio.pause();
+    }
+    function aStop() {
+        vm.audio.currentTime = 0;
+        vm.audio.pause();
+    }
+    function aSkip() {
+        vm.audio.currentTime = 50;
+        vm.audio.play();
+    }
+    var stop = 1;
+    $('#play-audio').on('click',function () {
+        if(stop == 1){
+            aPlay();
+            $('#play-audio').addClass('play')
+            stop = 0;
+        }else{
+            aPause();
+            $('#play-audio').removeClass('play')
+            stop = 1
+        }
+        console.log('play-audio')
+    })
+</script>

@@ -26,4 +26,12 @@ class IndexController extends HomeBaseController
         $this->assign('course_id',$courseId);
         return $this->fetch(':detail_video');
     }
+    public function detailPpt(){
+        $param = $this->request->param();
+        $userId = ArrayHelper::getValue($param,'user_id');
+        $courseId = ArrayHelper::getValue($param,'course_id');
+        $this->assign('user_id',$userId);
+        $this->assign('course_id',$courseId);
+        return $this->fetch(':detail_ppt');
+    }
 }

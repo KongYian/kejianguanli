@@ -48,9 +48,7 @@
                 console.log(courseId)
                 console.log(courseType)
                 var user_id = 1
-                if(courseType == 1){
-                    jumpTmpl(courseId,user_id)
-                }
+                jumpTmpl(courseType,courseId,user_id)
             }
         }
     })
@@ -68,7 +66,11 @@
             }
         })
     }
-    function jumpTmpl(courseId,userId) {
-        window.location.href = '/test/index/detailVideo?course_id='+courseId+'&user_id='+userId
+    function jumpTmpl(courseType,courseId,userId) {
+        if(courseType == 1){
+            window.location.href = '/test/index/detailVideo?course_id='+courseId+'&user_id='+userId
+        }else if(courseType == 2){
+            window.location.href = '/test/index/detailPpt?course_id='+courseId+'&user_id='+userId
+        }
     }
 </script>
