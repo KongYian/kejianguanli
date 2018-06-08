@@ -1,6 +1,10 @@
 <include file="public@header" title="课件详情"/>
-<link href="//vjs.zencdn.net/7.0/video-js.min.css" rel="stylesheet">
-<script src="//vjs.zencdn.net/7.0/video.min.js"></script>
+<!--<link href="//vjs.zencdn.net/7.0/video-js.min.css" rel="stylesheet">-->
+<link rel="stylesheet" href="__STATIC__/test/chat.css">
+<link rel="stylesheet" href="__STATIC__/test/layui/css/layui.css">
+<link href="__STATIC__/test/video-js.min.css" rel="stylesheet">
+<script src="__STATIC__/test/video.min.js"></script>
+<!--<script src="//vjs.zencdn.net/7.0/video.min.js"></script>-->
 <style>
     .my-video-dimensions{
         width: 100%;
@@ -15,6 +19,82 @@
                 <!--<source v-bind:src="'/upload/'+video_src" type="video/mp4" />-->
             <!--</video>-->
         </video>
+        <!--<div class="am-figure-capition-btm">-->
+            <div class="layui-container">
+                <div class="layui-row">
+                    <div class="layui-row" style="padding-top: 10px">
+                        <div class="layui-col-xs12 layui-col-sm6 layui-col-md2">
+                            <div class="grid-demo grid-demo-bg1 left-chat-window">
+                                <div class="layui-col-md6 layui-col-xs6">
+                                    <div class="grid-demo grid-demo-bg" style="">
+                                        <label class="layui-form-label" style="padding: 9px 0px!important;">昵称</label>
+                                    </div>
+                                </div>
+                                <div class="layui-col-md6 layui-col-xs6">
+                                    <div class="grid-demo grid-demo-bg" style="">
+                                        <button class="layui-btn" lay-submit lay-filter="formDemo" id="rename">更新</button>
+                                    </div>
+                                </div>
+                                <div class="layui-col-md12 layui-col-xs12">
+                                    <div class="grid-demo grid-demo-bg3">
+                                        <!--<div class="layui-input-block">-->
+                                        <input type="text" name="title" required  lay-verify="required" placeholder="请输入昵称" autocomplete="off" class="layui-input">
+                                        <!--</div>-->
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="layui-col-xs12 layui-col-sm6 layui-col-md8">
+                            <div class="grid-demo layui-bg-red main-chat-window">
+                                <div class="layui-col-md12 main-chat-window-top">
+                                    <div class="grid-demo grid-demo-bg">
+                                        <ul id="chat-main">
+                                            <!--<li class="layim-chat-mine">-->
+                                            <!--<div class="layim-chat-text">-->
+                                            <!--你好-->
+                                            <!--</div>-->
+                                            <!--</li>-->
+                                            <!--<li class="layim-chat-mine">-->
+                                            <!--&lt;!&ndash;<div class="layim-chat-user">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<img src="//res.layui.com/images/fly/avatar/00.jpg" alt="">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<cite>纸飞机</cite>&ndash;&gt;-->
+                                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                            <!--<div class="layim-chat-text-other">-->
+                                            <!--你好-->
+                                            <!--</div>-->
+                                            <!--</li>-->
+                                        </ul>
+                                        <!--<hr class="layui-bg-blue">-->
+                                    </div>
+                                </div>
+                                <div class="layui-col-md12 main-chat-window-bottom">
+                                    <div class="grid-demo grid-demo-bg3">
+                                        <div class="layui-form-item layui-form-text">
+                                            <div class="layui-input-block" style="margin-left: 0px;!important;">
+                                                <textarea placeholder="打开两个浏览器窗口即可开始在线聊天" class="layui-textarea"id="msg">eeee</textarea>
+                                                <div class="layui-btn-group" style="float: right">
+                                                    <button class="layui-btn" id="clear">清空</button>
+                                                    <button class="layui-btn" id="send">发送</button>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--<div class="layui-col-xs12 layui-col-sm12 layui-col-md2">-->
+                        <!--<div class="grid-demo layui-bg-blue right-chat-window">-->
+                        <!--热门房间-->
+                        <!--</div>-->
+                        <!--</div>-->
+                    </div>
+                </div>
+            </div>
+        <!--</div>-->
+
         <!--<img v-bind:src="'/upload/'+baseInfo.thumbnail" alt=""/>-->
         <figcaption class="am-figure-capition-btm">
             浏览数:{{ baseInfo.hits }} | 点赞数:{{ baseInfo.like }}
@@ -109,5 +189,82 @@
     }
     function jumpTmpl(type) {
 
+    }
+</script>
+<script>
+    var wsServer = 'ws://47.94.11.157:8081';
+    var websocket = new WebSocket(wsServer);
+    var msg,data,scrollHeight,name;
+    var nameArr = ['张三','blue','yammy','milly','jack','nick','michael','sonila','xixi','lizi2211'];
+
+    websocket.onopen = function (evt) {
+        console.log("Connected to WebSocket server.");
+        name = initName();
+        msg = {"type":'open',"name":name};
+        websocket.send(JSON.stringify(msg));
+    };
+
+    websocket.onclose = function (evt) {
+        console.log("Disconnected");
+    };
+
+    websocket.onmessage = function (evt) {
+        data = evt.data;
+        var dataArr =JSON.parse(data);
+        if(dataArr['type'] == 'open' || dataArr['type'] == 'close'){
+            layui.use(['layer'], function(){
+                var layer = layui.layer
+                layer.msg(dataArr['msg']);
+            });
+        }else{
+            $('ul').append(
+                '<li class="layim-chat-mine"> <div class="layim-chat-text-other">'+dataArr['msg']+'</div> </li>'
+            );
+            scrollHeight = $('.main-chat-window-top')[0].scrollHeight;
+            $('.main-chat-window-top').scrollTop(scrollHeight);
+        }
+    };
+
+    websocket.onerror = function (evt, e) {
+        console.log('Error occured: ' + evt.data);
+    };
+
+    $('#send').on('click',function () {
+        sendMsg()
+    });
+    $('#msg').on('keydown',function (event) {
+        event=document.all?window.event:event;
+        if((event.keyCode || event.which)==13){
+            sendMsg()
+        }
+    });
+    $('#clear').on('click',function () {
+        $('.main-chat-window-top').html('');
+    });
+    $('#rename').on('click',function () {
+        msg = {"type":'rename',"name":$('#name').val()?$('#name').val():initName};
+        websocket.send(JSON.stringify(msg));
+    })
+    function sendMsg() {
+        if($('#msg').val() == ''){
+            layui.use(['layer'], function(){
+                var layer = layui.layer
+                layer.msg('不允许发送空消息');
+            });
+            return false;
+        }
+        $('#chat-main').append(
+            '<li class="layim-chat-mine"> <div class="layim-chat-text">'+$('#msg').val()+'</div> </li>'
+        );
+        msg = {"type":'msg',"msg":$('#msg').val()};
+        websocket.send(JSON.stringify(msg));
+        $('#msg').val('');
+        scrollHeight = $('.main-chat-window-top')[0].scrollHeight;
+        $('.main-chat-window-top').scrollTop(scrollHeight);
+    }
+
+    function initName() {
+        i = parseInt(Math.random()*10);
+        return nameArr[i];
     }
 </script>
